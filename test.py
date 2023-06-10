@@ -1,5 +1,5 @@
 import copy
-
+# старая версия программы. Сейчас не используется
 
 class Position:
     def __init__(self, mask=None, ip=None, mot=None):

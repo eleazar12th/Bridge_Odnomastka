@@ -1,4 +1,6 @@
 from deep_green import *
+# класс CompWithComp game создаёт 2 экзмпляра DeepGreen (алгоритм, играющий в Одномастку с противником).
+# Они играют друг против друга, а их ходы выводятся на экран.
 
 class CompWithCompGame:
     def __init__(self):

@@ -1,12 +1,13 @@
 import copy
 import time
 
+# предпросчёт степеней двойки до 2^50
 pow2 = [0] * 51
 pow2[0] = 1
 for i in range(1, 51):
     pow2[i] = pow2[i - 1] * 2
 
-
+# про маску позиции рассказано в пункте 3.2.5 отчёта
 def create_mask(vector):
     mask = 0
     for i in range(len(vector)):

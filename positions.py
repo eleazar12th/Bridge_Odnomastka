@@ -1,4 +1,5 @@
 from auxiliary_functions import *
+# классы Position и InterPosition описаны в отчёте (пункт 3.2.1)
 
 class Position:
     def __init__(self, vector=None, ip=None, mot=None, bribe=None):

@@ -14,6 +14,10 @@ bad_moves = {}
 MAX_CONST = 10000
 MIN_CONST = -10000
 
+# Класс DeepGreen - робот, который играет в Одномастку с противником.
+# Он ключевая часть программы.
+# Для понимания его работы очень  совеутую ознакомиться с моим отчётом
+# А также со статьёй http://algolist.ru/games/alphabeta.php - моя работа главным образом базируется на ней
 class DeepGreen:
     def __init__(self):
         self.type = 'normal'
@@ -24,9 +28,11 @@ class DeepGreen:
         self.mode = 'normal'
         self.weights = []
 
+    # хеш-функция. Некоторые позиции мы можем считать одинаковыми
     def h(self, p):
         return (p.mask, p.curr_player, p.table)
 
+    # целевая функция, с которой работает алгоритм минимакса
     def g(self, p):
         if self.h(p) in f:
             return f[self.h(p)] + p.x
@@ -34,6 +40,8 @@ class DeepGreen:
             return p.x
         return MIN_CONST
 
+    # ф-ии less, greater, Range нужны, чтобы в зависисмости от того нормальная игра или мизерная
+    # программа вела себя по-разному
     def less(self, a, b):
         if self.type == 'normal':
             return a < b
@@ -52,11 +60,16 @@ class DeepGreen:
         else:
             return range(n - 1, -1, -1)
 
+    # меняет тип игры на мизерный
     def change_type_to_tiny(self):
         global MAX_CONST, MIN_CONST
         self.type = 'tiny'
         MAX_CONST, MIN_CONST = MIN_CONST, MAX_CONST
 
+    # AddInterPositionPreview, AddPositionPreview - ф-ии для опредеделение
+    # доп. информации о возможных ходах после текущего хода
+    # Например,
+    # Других оптимальных ходов нет | Ожидаемое кол-во взяток у 1: 3 | Ожидаемое кол-во взяток у 0: 3
     def AddInterPositionPreview(self, ip, poss_moves):
         if self.type == 'tiny' or self.mode == 'weights':
             return
@@ -84,6 +97,7 @@ class DeepGreen:
             if move > f[self.h(p)]:
                 bad_moves[self.h(p)] += 1
 
+    # находим наилучший ход из позиции (или интерпозиции)
     def find_best_mot(self, p):
         if self.type == 'tiny':
             return optimal_moves[self.h(p)][0]
@@ -121,6 +135,7 @@ class DeepGreen:
             else:
                 return optimal_moves[self.h(p)][0]
 
+    # Рекурсивный шаг предпросчёта при режиме с весами. Обрабатываем экземпляр InterPosition
     def AlternInterPositionPreviewWeights(self, ip, bribe):
         poss_moves = []
         m = MIN_CONST
@@ -159,6 +174,7 @@ class DeepGreen:
 
         best_mot[self.h(ip)] = self.find_best_mot(ip)
 
+    # Рекурсивный шаг предпросчёта. Обрабатываем экземпляр InterPosition
     def InterPositionPreview(self, ip, bound):
         if (self.h(ip) in f):
             # print('Old InterPosition', 'mask:', make_vector(ip.mask), 'key = ', self.h(ip), 'x=', ip.x, 'f=',
@@ -233,6 +249,7 @@ class DeepGreen:
 
             # print('InterPosition, 1 mot:', 'mask:', make_vector(ip.mask), 'key = ', self.h(ip), 'x=', ip.x, 'f=', f[self.h(ip)], 'g=', self.g(ip))
 
+    # Рекурсивный шаг предпросчёта. Обрабатываем экземпляр Position
     def PositionPreview(self, p, bound):
         if (self.h(p) in f):
             # print('Old Position', 'mask:', make_vector(p.mask), 'key = ', self.h(p), 'x=', p.x, 'f=', f[self.h(p)],
@@ -309,6 +326,7 @@ class DeepGreen:
 
             # print('Position, 1 mot:', 'mask:', make_vector(p.mask), 'key = ', self.h(p), 'x=', p.x, 'f=', f[self.h(p)], 'g=', self.g(p))
 
+    # выводит на экран дополнительную информацию
     def PrintAddInf(self, p):
         if len(optimal_moves[self.h(p)]) == 1:
             print('Других оптимальных ходов нет |', end=' ')
@@ -344,6 +362,8 @@ class DeepGreen:
             print('Ожидаемая сумма взяток у ', self.a, ': ', (w_sum + delta) // 2, sep='', end=' | ')
             print('Ожидаемая сумма взяток у ', self.b, ': ', (w_sum - delta) // 2, sep='')
 
+    # Ведёт игру с противником. Делает полный предпросчёт,
+    # принмает ходы противника и делает свои
     def Play(self, vector, first_player=0):
         for i in range(len(vector)):
             self.card.append(i + 1)
@@ -386,6 +406,7 @@ class DeepGreen:
         else:
             print(self.b, 'Победил!')
 
+    # в самом начале игры выводит, у кого какие карты на руке
     def print_cards(self, vector):
         kit0 = []
         kit1 = []
@@ -399,6 +420,7 @@ class DeepGreen:
         print('Карты 1:', *kit1)
         print('')
 
+    # создаёт двоичный вектор игры из строки
     def read_vector(self, str):
         vector = []
         for c in str:
@@ -411,6 +433,7 @@ class DeepGreen:
         self.K = len(vector) // 2
         return vector
 
+    # считываем настройки из файла и запускаем игру
     def Game(self, lines): # считываем настройки из файла
         l = lines[1].split(' ')
         if l[2] != 'normal':
